@@ -4,18 +4,18 @@
 
 ReflectOS is the approachable, configurable, and extensible OS for your Raspberry Pi smart mirror project.  It is designed to allow anyone to easily install, customize, and enjoy a smart mirror/display - no coding or command line usage required!
 
-This repo contains the system firmware which is flashed to a MicroSD card for your Raspberry Pi.  It is optimized to work with the [Vilros Magic Mirror v4](https://vilros.com/products/vilros-magic-mirror-v4), but you can build your own as well!  See more project ideas, information, and setup guides in the [offical documentation](https://Reflect-OS.github.io/docs).
+This repo contains the system firmware which is flashed to a MicroSD card for your Raspberry Pi.  It is optimized to work with the [Vilros Magic Mirror v4](https://vilros.com/products/vilros-magic-mirror-v4), but you can build your own as well!  See more project ideas, information, and setup guides in the [official documentation](https://Reflect-OS.github.io/docs).
 
 ## Quick Start
 
-1. Download the correct `.img` file for your Raspberry Pi from the [latest release](https://github.com/Reflect-OS/firmware/releases/latest).  See the [offical documentation](https://Reflect-OS.github.io/downloads) for details
+1. Download the correct `.img` file for your Raspberry Pi from the [latest release](https://github.com/Reflect-OS/firmware/releases/latest).  See the [official documentation](https://Reflect-OS.github.io/downloads) for details
 on compatibility.
 2. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) or [Balena Etcher](https://etcher.balena.io) to flash the firmware your MicroSD card.
 3. Insert the MicroSD card into your Raspberry Pi, plug it into the screen, and power it up!
 4. Follow the instructions on screen to connect to your wifi network and configure
 your system.
 
-For a more detailed guide and lots more information on ReflectOS, please checkout the [offical documentation](https://Reflect-OS.github.io/docs).
+For a more detailed guide and lots more information on ReflectOS, please checkout the [official documentation](https://Reflect-OS.github.io/docs).
 
 ## Quickstart using `fwup`
 
