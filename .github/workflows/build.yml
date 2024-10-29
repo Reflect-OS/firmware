@@ -1,0 +1,182 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]  # adapt branch for project
+  pull_request:
+    branches: [ "main" ]  # adapt branch for project
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Checks
+    steps:
+    # Step: Setup Elixir + Erlang image as the base.
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: 27.0.1
+        elixir-version: 1.17.3
+
+    # Step: Check out the code.
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Install Ubuntu Dependencies
+    - name: Install Nerves and Scenic Dependencies
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libmnl-dev build-essential libglfw3 libglfw3-dev libglew-dev
+        version: 1.0
+
+    # Step: Define how to cache deps. Restores existing cache if present.
+    - name: Cache deps
+      id: cache-deps
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-elixir-deps
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+    # Step: Define how to cache the `_build` directory. After the first run,
+    # this speeds up tests runs a lot. This includes not re-compiling our
+    # project's downloaded deps every run.
+    - name: Cache compiled build
+      id: cache-build
+      uses: actions/cache@v3
+      env:
+        cache-name: cached-build-test
+      with:
+        path: _build
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+          ${{ runner.os }}-mix-
+
+    # Step: Conditionally bust the cache when job is re-run.
+    - name: Clean to rule out incremental build as a source of flakiness
+      if: github.run_attempt != '1'
+      run: |
+        mix deps.clean --all
+        mix clean
+      shell: sh
+    
+    - name: Install Nerves Bootstrap
+      run: mix archive.install hex nerves_bootstrap --force
+
+    # Step: Download project dependencies. If unchanged, uses
+    # the cached version.
+    - name: Install dependencies
+      run: mix deps.get
+      
+    - name: Compiles without errors
+      run: mix compile
+
+    # Step: Check that the checked in code has already been formatted.
+    # This step fails if something was found unformatted.
+    # Customize this step as desired.
+    - name: Check Formatting
+      run: mix format --check-formatted
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    name: Build for ${{matrix.target}}
+    strategy:
+      matrix:
+        target: [rpi0, rpi3, rpi3a, rpi4, rpi5]
+    env:
+      MIX_ENV: prod
+      MIX_TARGET: ${{matrix.target}}
+      SCENIC_LOCAL_TARGET: bcm
+    steps:
+    # Step: Setup Elixir + Erlang image as the base.
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: 27.0.1
+        elixir-version: 1.17.3
+
+    - name: Install Nerves Dependencies
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: build-essential automake autoconf squashfs-tools ssh-askpass pkg-config curl libmnl-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev
+        version: 1.0
+    
+    - name: Install fwup
+      run : |
+        wget "https://github.com/fwup-home/fwup/releases/download/v1.11.0/fwup_1.11.0_amd64.deb"
+        sudo dpkg -i ./fwup_1.11.0_amd64.deb
+        sudo apt-get install -f
+
+    # Step: Check out the code.
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step: Define how to cache deps. Restores existing cache if present.
+    - name: Cache deps
+      id: cache-deps
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-elixir-deps-prod
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+    # Step: Define how to cache the `_build` directory. After the first run,
+    # this speeds up tests runs a lot. This includes not re-compiling our
+    # project's downloaded deps every run.
+    - name: Cache compiled build
+      id: cache-build
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-build-prod
+      with:
+        path: _build
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+          ${{ runner.os }}-mix-
+
+    - name: Cache Nerves Directory
+      uses: actions/cache@v4
+      with:
+          path: ~/.nerves
+          key: nerves-${{ hashFiles('**/mix.lock') }}
+
+    # Step: Conditionally bust the cache when job is re-run.
+    - name: Clean to rule out incremental build as a source of flakiness
+      if: github.run_attempt != '1'
+      run: |
+        mix deps.clean --all
+        mix clean
+      shell: sh
+
+    - name: Install Nerves Bootstrap
+      run: mix archive.install hex nerves_bootstrap --force
+
+    # Step: Download project dependencies. If unchanged, uses
+    # the cached version.
+    - name: Install dependencies
+      run: mix deps.get
+
+    # Step: Build the Firmware
+    - name: Build the Firmware
+      run: mix firmware --output ReflectOS-firmware-${{matrix.target}}.fw
+
+    - name: Build the Disk Image
+      run: mix firmware.burn -d ReflectOS-firmware-${{matrix.target}}.img
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-${{matrix.target}}
+        path: ReflectOS-firmware-${{matrix.target}}.*

@@ -1,0 +1,63 @@
+name: Release
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    name: Release Package
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yml
+          branch: main
+      
+      - name: Get Version
+        id: get-version
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Create release notes
+        run: grep -Pazo "(?s)(?<=## v${{ steps.get-version.outputs.version }})[^#]+" CHANGELOG.md | sed '/./,$!d' > RELEASE_NOTES
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          tag_name: v${{ steps.get-version.outputs.version}}
+          body_path: RELEASE_NOTES
+          files: firmware-*/*
+            
+
+  prepare-next-release:
+    name: Prepare Next Release
+    needs: [ release ]
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Get Next Version
+        id: get-next-version
+        run: echo "version=$(cat VERSION | awk -F. '{OFS="."; $NF+=1; print $0}')" >> "$GITHUB_OUTPUT"
+
+      - name: Set Next Version
+        run: echo ${{ steps.get-next-version.outputs.version}} > VERSION
+
+      - name: Prepare Changelog
+        run: sed -i '3s/^/## v${{ steps.get-next-version.outputs.version}}\r\n\r\n/' CHANGELOG.md
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Bump version for next release
