@@ -79,6 +79,10 @@ https://hexdocs.pm/nerves/supported-targets.html
 
 ### Getting Started
 
+To start developing locally:
+* Install dependencies with `mix deps.get`
+* Run `iex -S mix` to start the application
+
 To start your Nerves app:
   * `export MIX_TARGET=my_target` or prefix every command with
     `MIX_TARGET=my_target`. For example, `MIX_TARGET=rpi3`
