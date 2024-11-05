@@ -52,7 +52,7 @@ platform for building embedded system using Elixir.  See details below for getti
 
 ### Requirements
 
-The Nerves project maintains excellent documention, and contains the basics of what
+The Nerves project maintains excellent documentation, and contains the basics of what
 you'll need to get started developing ReflectOS.
 
 You can find the instructions here in the [Official Nerves Docs](https://hexdocs.pm/nerves/installation.html).
