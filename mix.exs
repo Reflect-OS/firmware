@@ -74,11 +74,10 @@ defmodule ReflectOS.Firmware.MixProject do
       {:scenic, "~>  0.11.2"},
       {:scenic_driver_local, "~>  0.11"},
       {:scenic_fontawesome, "~>  0.1.0"},
-      {:font_metrics,
-       github: "jvantuyl/font_metrics", branch: "infinite_wrap_fix/1", override: true},
+      {:font_metrics, "~> 0.5"},
 
       # Override until v1.0.0 is released
-      {:phoenix_live_view, "~> 1.0.0-rc.7", override: true}
+      {:phoenix_live_view, "~> 1.0", override: true}
     ] ++ reflect_os_deps(System.get_env("REFLECTOS_DEPS"))
   end
 
