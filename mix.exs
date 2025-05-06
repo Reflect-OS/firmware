@@ -77,20 +77,24 @@ defmodule ReflectOS.Firmware.MixProject do
       {:font_metrics,
        github: "jvantuyl/font_metrics", branch: "infinite_wrap_fix/1", override: true},
 
-      # ReflectOS
-      {:reflect_os_kernel, "~> 0.10.0"},
-      {:reflect_os_core, "~> 0.10.1"},
-      {:reflect_os_console, "~> 0.10.3"},
-
-      # Uncomment for local development
-      # {:reflect_os_kernel, path: "../kernel"},
-      # {:reflect_os_core, path: "../core", override: true},
-      # {:reflect_os_console, path: "../console"},
-
       # Override until v1.0.0 is released
       {:phoenix_live_view, "~> 1.0.0-rc.7", override: true}
-    ]
+    ] ++ reflect_os_deps(System.get_env("REFLECTOS_DEPS"))
   end
+
+  def reflect_os_deps("local"),
+    do: [
+      {:reflect_os_kernel, path: "../kernel", override: true},
+      {:reflect_os_core, path: "../core", override: true},
+      {:reflect_os_console, path: "../console"}
+    ]
+
+  def reflect_os_deps(_),
+    do: [
+      {:reflect_os_kernel, "~> 0.10.0"},
+      {:reflect_os_core, "~> 0.10.2"},
+      {:reflect_os_console, "~> 0.10.3"}
+    ]
 
   def release do
     [
