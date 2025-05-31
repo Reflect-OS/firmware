@@ -5,7 +5,7 @@ on: workflow_dispatch
 jobs:
   release:
     name: Release Package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -40,7 +40,7 @@ jobs:
   prepare-next-release:
     name: Prepare Next Release
     needs: [ release ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
