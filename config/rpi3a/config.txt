@@ -51,5 +51,5 @@ dtoverlay=miniuart-bt
 core_freq=250
 
 # Setup display
-display_rotate=3
+display_rotate=1
 disable_overscan=1

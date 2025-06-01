@@ -58,5 +58,5 @@ dtparam=act_led_trigger=heartbeat
 #dtparam=act_led_trigger=none
 
 # Setup display
-display_rotate=3
+display_rotate=1
 disable_overscan=1
