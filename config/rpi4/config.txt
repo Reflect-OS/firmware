@@ -70,6 +70,6 @@ enable_uart=1
 dtoverlay=dwc2,dr_mode=host
 
 # Setup display
-display_rotate=3
+display_rotate=1
 disable_overscan=1
 
