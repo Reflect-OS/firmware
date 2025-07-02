@@ -67,6 +67,6 @@ dtoverlay=ramoops
 enable_uart=1
 
 # Setup display
-display_rotate=3
+display_rotate=1
 disable_overscan=1
 
