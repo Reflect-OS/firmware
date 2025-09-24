@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.10.2
+
 ## v0.10.1
 
 * Bumps version of ReflectOS core
