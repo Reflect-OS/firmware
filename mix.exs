@@ -91,8 +91,8 @@ defmodule ReflectOS.Firmware.MixProject do
   def reflect_os_deps(_),
     do: [
       {:reflect_os_kernel, "~> 0.10.0"},
-      {:reflect_os_core, "~> 0.10.3"},
-      {:reflect_os_console, "~> 0.10.3"}
+      {:reflect_os_core, "~> 0.10.5"},
+      {:reflect_os_console, "~> 0.10.4"}
     ]
 
   def release do
